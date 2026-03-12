@@ -101,3 +101,33 @@
     font-family: 'Space Grotesk', sans-serif;
   }
 }
+
+@media print {
+  /* Hide everything except the contract document */
+  body > * {
+    display: none !important;
+  }
+
+  /* Re-show only the contract root */
+  body #root {
+    display: block !important;
+  }
+
+  /* Hide non-contract UI */
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Full-width contract */
+  #sales-contract {
+    display: block !important;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  @page {
+    margin: 1.5cm;
+    size: A4;
+  }
+}

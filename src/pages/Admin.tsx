@@ -26,6 +26,7 @@ import {
   Star,
   GripVertical,
   ImagePlus,
+  FileSignature,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
@@ -47,7 +48,7 @@ const emptyForm: Omit<Car, "id" | "images" | "dealershipId"> = {
 };
 
 const Admin = () => {
-  const { slug } = useDealershipCtx();
+  const { slug, dealership } = useDealershipCtx();
   const { data: listings = [], isLoading } = useCars(slug);
   const createCar = useCreateCar(slug);
   const updateCar = useUpdateCar(slug);
@@ -64,6 +65,9 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState<"listings" | "customization">(
     "listings",
   );
+  const [phone, setPhone] = useState(dealership.phone);
+  const [address, setAddress] = useState(dealership.address);
+  const [aboutUs, setAboutUs] = useState(dealership.aboutUs);
   const {
     dealershipName,
     logoUrl,
@@ -414,7 +418,43 @@ const Admin = () => {
               </div>
             </div>
 
-            {/* Save + Reset */}
+            {/* Contact & About */}
+            <div className="rounded-lg border bg-card p-6">
+              <h2 className="font-display text-lg font-semibold">
+                Contact &amp; About
+              </h2>
+              <div className="mt-4 grid gap-6 sm:grid-cols-2">
+                <div>
+                  <label className="text-sm font-medium">Phone</label>
+                  <input
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="e.g. +1 555 123 4567"
+                    className="mt-1 h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Address</label>
+                  <input
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="e.g. 123 Main St, Springfield"
+                    className="mt-1 h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="text-sm font-medium">About Us</label>
+                  <textarea
+                    value={aboutUs}
+                    onChange={(e) => setAboutUs(e.target.value)}
+                    rows={4}
+                    placeholder="Tell customers about your dealership…"
+                    className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div className="flex gap-3">
               <button
                 onClick={async () => {
@@ -426,6 +466,9 @@ const Admin = () => {
                       secondaryColor,
                       heroTitle,
                       heroSubtitle,
+                      phone,
+                      address,
+                      aboutUs,
                     });
                     toast.success("Customization saved");
                   } catch (err: any) {
@@ -801,6 +844,12 @@ const Admin = () => {
                               className="rounded p-1.5 hover:bg-secondary"
                               title="View">
                               <Eye className="h-4 w-4 text-muted-foreground" />
+                            </Link>
+                            <Link
+                              to={`/d/${slug}/car/${car.id}/contract`}
+                              className="rounded p-1.5 hover:bg-secondary"
+                              title="Sales Contract">
+                              <FileSignature className="h-4 w-4 text-muted-foreground" />
                             </Link>
                             <button
                               onClick={() => handleEdit(car)}

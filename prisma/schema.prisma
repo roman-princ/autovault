@@ -18,6 +18,7 @@ model Dealership {
   heroSubtitle   String   @default("Browse our curated selection of premium vehicles.") @map("hero_subtitle")
   phone          String   @default("")
   address        String   @default("")
+  aboutUs        String   @default("") @map("about_us")
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   cars Car[]

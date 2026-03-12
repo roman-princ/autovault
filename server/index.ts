@@ -80,6 +80,7 @@ app.patch("/api/dealerships/:slug", async (req, res) => {
     heroSubtitle,
     phone,
     address,
+    aboutUs,
   } = req.body;
   const dealership = await prisma.dealership.update({
     where: { slug: req.params.slug },
@@ -92,6 +93,7 @@ app.patch("/api/dealerships/:slug", async (req, res) => {
       ...(heroSubtitle !== undefined && { heroSubtitle }),
       ...(phone !== undefined && { phone }),
       ...(address !== undefined && { address }),
+      ...(aboutUs !== undefined && { aboutUs }),
     },
   });
   res.json(dealership);

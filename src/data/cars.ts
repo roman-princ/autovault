@@ -10,6 +10,7 @@ export interface Dealership {
   heroSubtitle: string;
   phone: string;
   address: string;
+  aboutUs: string;
   createdAt: string;
 }
 

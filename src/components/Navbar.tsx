@@ -51,6 +51,11 @@ const Navbar = () => {
             Value Estimator
           </Link>
           <Link
+            to={`${base}/about`}
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+            About Us
+          </Link>
+          <Link
             to={`${base}/admin`}
             className="flex items-center gap-1 rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80">
             <Settings className="h-3.5 w-3.5" />
@@ -107,6 +112,12 @@ const Navbar = () => {
               onClick={() => setMobileOpen(false)}
               className="text-sm font-medium">
               Value Estimator
+            </Link>
+            <Link
+              to={`${base}/about`}
+              onClick={() => setMobileOpen(false)}
+              className="text-sm font-medium">
+              About Us
             </Link>
             <Link
               to={`${base}/admin`}

@@ -13,6 +13,8 @@ import CarDetail from "./pages/CarDetail.tsx";
 import Compare from "./pages/Compare.tsx";
 import Calculator from "./pages/Calculator.tsx";
 import Estimate from "./pages/Estimate.tsx";
+import About from "./pages/About.tsx";
+import SalesContract from "./pages/SalesContract.tsx";
 import Admin from "./pages/Admin.tsx";
 import Login from "./pages/Login.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -43,6 +45,15 @@ const App = () => (
                       <Route path="/compare" element={<Compare />} />
                       <Route path="/calculator" element={<Calculator />} />
                       <Route path="/estimate" element={<Estimate />} />
+                      <Route path="/about" element={<About />} />
+                      <Route
+                        path="/car/:id/contract"
+                        element={
+                          <ProtectedRoute>
+                            <SalesContract />
+                          </ProtectedRoute>
+                        }
+                      />
                       <Route
                         path="/admin"
                         element={
