@@ -55,11 +55,14 @@ const SalesContract = () => {
   const { data: car, isLoading } = useCar(id);
   const [buyer, setBuyer] = useState<BuyerInfo>(defaultBuyer);
 
-  const set = (field: keyof BuyerInfo) => (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => setBuyer((b) => ({ ...b, [field]: e.target.value }));
+  const set =
+    (field: keyof BuyerInfo) =>
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >,
+    ) =>
+      setBuyer((b) => ({ ...b, [field]: e.target.value }));
 
   const handlePrint = () => window.print();
 
@@ -80,7 +83,9 @@ const SalesContract = () => {
         <Navbar />
         <div className="container py-20 text-center">
           <p className="text-muted-foreground">Vehicle not found</p>
-          <Link to={`/d/${slug}`} className="mt-4 inline-block text-sm text-primary hover:underline">
+          <Link
+            to={`/d/${slug}`}
+            className="mt-4 inline-block text-sm text-primary hover:underline">
             ← Back to listings
           </Link>
         </div>
@@ -129,29 +134,78 @@ const SalesContract = () => {
           {/* ── Buyer info form — screen only ──────────────────────────── */}
           <div className="print:hidden">
             <div className="rounded-lg border bg-card p-6">
-              <h2 className="font-display text-lg font-semibold">Buyer Information</h2>
+              <h2 className="font-display text-lg font-semibold">
+                Buyer Information
+              </h2>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <Field label="First Name *" value={buyer.firstName} onChange={set("firstName")} />
-                <Field label="Last Name *" value={buyer.lastName} onChange={set("lastName")} />
-                <Field label="ID / Passport Number *" value={buyer.idNumber} onChange={set("idNumber")} />
-                <Field label="Date of Birth" type="date" value={buyer.dateOfBirth} onChange={set("dateOfBirth")} />
-                <Field label="Phone" value={buyer.phone} onChange={set("phone")} placeholder="+1 555 000 0000" />
-                <Field label="Email" type="email" value={buyer.email} onChange={set("email")} placeholder="buyer@example.com" />
+                <Field
+                  label="First Name *"
+                  value={buyer.firstName}
+                  onChange={set("firstName")}
+                />
+                <Field
+                  label="Last Name *"
+                  value={buyer.lastName}
+                  onChange={set("lastName")}
+                />
+                <Field
+                  label="ID / Passport Number *"
+                  value={buyer.idNumber}
+                  onChange={set("idNumber")}
+                />
+                <Field
+                  label="Date of Birth"
+                  type="date"
+                  value={buyer.dateOfBirth}
+                  onChange={set("dateOfBirth")}
+                />
+                <Field
+                  label="Phone"
+                  value={buyer.phone}
+                  onChange={set("phone")}
+                  placeholder="+1 555 000 0000"
+                />
+                <Field
+                  label="Email"
+                  type="email"
+                  value={buyer.email}
+                  onChange={set("email")}
+                  placeholder="buyer@example.com"
+                />
                 <div className="sm:col-span-2">
-                  <Field label="Street Address" value={buyer.address} onChange={set("address")} />
+                  <Field
+                    label="Street Address"
+                    value={buyer.address}
+                    onChange={set("address")}
+                  />
                 </div>
                 <Field label="City" value={buyer.city} onChange={set("city")} />
-                <Field label="Postal Code" value={buyer.postalCode} onChange={set("postalCode")} />
+                <Field
+                  label="Postal Code"
+                  value={buyer.postalCode}
+                  onChange={set("postalCode")}
+                />
                 <div className="sm:col-span-2">
-                  <Field label="Country" value={buyer.country} onChange={set("country")} />
+                  <Field
+                    label="Country"
+                    value={buyer.country}
+                    onChange={set("country")}
+                  />
                 </div>
               </div>
             </div>
 
             <div className="mt-4 rounded-lg border bg-card p-6">
-              <h2 className="font-display text-lg font-semibold">Sale Details</h2>
+              <h2 className="font-display text-lg font-semibold">
+                Sale Details
+              </h2>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <Field label="Sale Date" type="date" value={buyer.saleDate} onChange={set("saleDate")} />
+                <Field
+                  label="Sale Date"
+                  type="date"
+                  value={buyer.saleDate}
+                  onChange={set("saleDate")}
+                />
                 <div>
                   <label className="text-sm font-medium">Payment Method</label>
                   <select
@@ -185,7 +239,9 @@ const SalesContract = () => {
                   placeholder="0"
                 />
                 <div className="sm:col-span-2">
-                  <label className="text-sm font-medium">Additional Notes</label>
+                  <label className="text-sm font-medium">
+                    Additional Notes
+                  </label>
                   <textarea
                     rows={3}
                     value={buyer.notes}
@@ -212,7 +268,9 @@ const SalesContract = () => {
                 <h1 className="font-display text-2xl font-bold uppercase tracking-widest text-gray-900">
                   Vehicle Sales Contract
                 </h1>
-                <p className="mt-1 text-xs text-gray-500">Contract No. {id?.slice(0, 8).toUpperCase()}</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Contract No. {id?.slice(0, 8).toUpperCase()}
+                </p>
               </div>
 
               {/* Parties */}
@@ -222,34 +280,59 @@ const SalesContract = () => {
                 </h2>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="rounded border border-gray-200 p-3">
-                    <p className="mb-2 text-xs font-semibold uppercase text-gray-400">Seller</p>
+                    <p className="mb-2 text-xs font-semibold uppercase text-gray-400">
+                      Seller
+                    </p>
                     <p className="font-semibold">{dealership.name}</p>
-                    {dealership.address && <p className="mt-0.5 text-gray-600">{dealership.address}</p>}
-                    {dealership.phone && <p className="mt-0.5 text-gray-600">{dealership.phone}</p>}
+                    {dealership.address && (
+                      <p className="mt-0.5 text-gray-600">
+                        {dealership.address}
+                      </p>
+                    )}
+                    {dealership.phone && (
+                      <p className="mt-0.5 text-gray-600">{dealership.phone}</p>
+                    )}
                   </div>
                   <div className="rounded border border-gray-200 p-3">
-                    <p className="mb-2 text-xs font-semibold uppercase text-gray-400">Buyer</p>
+                    <p className="mb-2 text-xs font-semibold uppercase text-gray-400">
+                      Buyer
+                    </p>
                     <p className="font-semibold">
                       {buyer.firstName || buyer.lastName
                         ? `${buyer.firstName} ${buyer.lastName}`.trim()
                         : "___________________________"}
                     </p>
-                    {buyer.idNumber && <p className="mt-0.5 text-gray-600">ID / Passport: {buyer.idNumber}</p>}
+                    {buyer.idNumber && (
+                      <p className="mt-0.5 text-gray-600">
+                        ID / Passport: {buyer.idNumber}
+                      </p>
+                    )}
                     {buyer.dateOfBirth && (
                       <p className="mt-0.5 text-gray-600">
                         DOB:{" "}
-                        {new Date(buyer.dateOfBirth).toLocaleDateString("en-GB")}
+                        {new Date(buyer.dateOfBirth).toLocaleDateString(
+                          "en-GB",
+                        )}
                       </p>
                     )}
                     {(buyer.address || buyer.city) && (
                       <p className="mt-0.5 text-gray-600">
-                        {[buyer.address, buyer.city, buyer.postalCode, buyer.country]
+                        {[
+                          buyer.address,
+                          buyer.city,
+                          buyer.postalCode,
+                          buyer.country,
+                        ]
                           .filter(Boolean)
                           .join(", ")}
                       </p>
                     )}
-                    {buyer.phone && <p className="mt-0.5 text-gray-600">{buyer.phone}</p>}
-                    {buyer.email && <p className="mt-0.5 text-gray-600">{buyer.email}</p>}
+                    {buyer.phone && (
+                      <p className="mt-0.5 text-gray-600">{buyer.phone}</p>
+                    )}
+                    {buyer.email && (
+                      <p className="mt-0.5 text-gray-600">{buyer.email}</p>
+                    )}
                   </div>
                 </div>
               </section>
@@ -273,9 +356,15 @@ const SalesContract = () => {
                         ["Mileage", `${car.mileage.toLocaleString()} km`],
                         ["Vehicle ID", id?.toUpperCase() ?? "—"],
                       ].map(([label, value]) => (
-                        <tr key={label} className="border-b border-gray-100 last:border-0">
-                          <td className="py-1.5 pr-4 font-medium text-gray-500 w-36">{label}</td>
-                          <td className="py-1.5 font-semibold text-gray-900">{value}</td>
+                        <tr
+                          key={label}
+                          className="border-b border-gray-100 last:border-0">
+                          <td className="py-1.5 pr-4 font-medium text-gray-500 w-36">
+                            {label}
+                          </td>
+                          <td className="py-1.5 font-semibold text-gray-900">
+                            {value}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -291,31 +380,47 @@ const SalesContract = () => {
                 <div className="rounded border border-gray-200 p-3">
                   <div className="flex items-center justify-between border-b border-gray-100 py-1.5">
                     <span className="text-gray-500">Agreed Sale Price</span>
-                    <span className="font-semibold text-gray-900">€{basePrice.toLocaleString()}</span>
+                    <span className="font-semibold text-gray-900">
+                      €{basePrice.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between border-b border-gray-100 py-1.5">
-                    <span className="text-gray-500">Sales Tax ({salesTaxRate}%)</span>
-                    <span className="font-semibold">€{salesTaxAmount.toLocaleString()}</span>
+                    <span className="text-gray-500">
+                      Sales Tax ({salesTaxRate}%)
+                    </span>
+                    <span className="font-semibold">
+                      €{salesTaxAmount.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between border-b border-gray-100 py-1.5">
-                    <span className="text-gray-500">Total Price (incl. tax)</span>
-                    <span className="text-lg font-bold text-gray-900">€{totalPrice.toLocaleString()}</span>
+                    <span className="text-gray-500">
+                      Total Price (incl. tax)
+                    </span>
+                    <span className="text-lg font-bold text-gray-900">
+                      €{totalPrice.toLocaleString()}
+                    </span>
                   </div>
                   {buyer.deposit && (
                     <div className="flex items-center justify-between border-b border-gray-100 py-1.5">
                       <span className="text-gray-500">Deposit Paid</span>
-                      <span className="font-semibold">€{depositAmount.toLocaleString()}</span>
+                      <span className="font-semibold">
+                        €{depositAmount.toLocaleString()}
+                      </span>
                     </div>
                   )}
                   {buyer.deposit && (
                     <div className="flex items-center justify-between py-1.5">
                       <span className="text-gray-500">Remaining Balance</span>
-                      <span className="font-semibold">€{remainingBalance.toLocaleString()}</span>
+                      <span className="font-semibold">
+                        €{remainingBalance.toLocaleString()}
+                      </span>
                     </div>
                   )}
                   <div className="mt-2 border-t border-gray-100 pt-2">
                     <span className="text-gray-500">Payment Method: </span>
-                    <span className="font-semibold">{paymentLabels[buyer.paymentMethod]}</span>
+                    <span className="font-semibold">
+                      {paymentLabels[buyer.paymentMethod]}
+                    </span>
                   </div>
                 </div>
               </section>
@@ -331,7 +436,12 @@ const SalesContract = () => {
                       <p>{car.features.join(" · ")}</p>
                     )}
                     {buyer.notes && (
-                      <p className={car.features.length > 0 ? "mt-2 border-t border-gray-100 pt-2" : ""}>
+                      <p
+                        className={
+                          car.features.length > 0
+                            ? "mt-2 border-t border-gray-100 pt-2"
+                            : ""
+                        }>
                         {buyer.notes}
                       </p>
                     )}
@@ -345,11 +455,13 @@ const SalesContract = () => {
                   V. Declaration
                 </h2>
                 <p className="text-xs leading-relaxed text-gray-600">
-                  Both parties confirm that the sale described in this contract is made in good faith.
-                  The seller guarantees that the vehicle is free of any undisclosed encumbrances and is
-                  fit for road use at the time of handover. The buyer acknowledges having inspected the
-                  vehicle prior to purchase and accepts it in its current condition unless otherwise
-                  stated above. This contract is binding upon signature by both parties.
+                  Both parties confirm that the sale described in this contract
+                  is made in good faith. The seller guarantees that the vehicle
+                  is free of any undisclosed encumbrances and is fit for road
+                  use at the time of handover. The buyer acknowledges having
+                  inspected the vehicle prior to purchase and accepts it in its
+                  current condition unless otherwise stated above. This contract
+                  is binding upon signature by both parties.
                 </p>
               </section>
 
@@ -357,12 +469,18 @@ const SalesContract = () => {
               <section className="mt-8">
                 <div className="grid grid-cols-2 gap-8">
                   <div>
-                    <p className="text-xs text-gray-500">Seller signature &amp; date</p>
+                    <p className="text-xs text-gray-500">
+                      Seller signature &amp; date
+                    </p>
                     <div className="mt-6 border-b border-gray-400" />
-                    <p className="mt-1 text-xs text-gray-400">{dealership.name}</p>
+                    <p className="mt-1 text-xs text-gray-400">
+                      {dealership.name}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Buyer signature &amp; date</p>
+                    <p className="text-xs text-gray-500">
+                      Buyer signature &amp; date
+                    </p>
                     <div className="mt-6 border-b border-gray-400" />
                     <p className="mt-1 text-xs text-gray-400">
                       {buyer.firstName || buyer.lastName
