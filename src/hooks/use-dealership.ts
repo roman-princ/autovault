@@ -1,6 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Dealership } from "@/data/cars";
 
+export interface PublicDealership {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl: string | null;
+  primaryColor: string;
+  heroSubtitle: string;
+  address: string;
+  phone: string;
+  createdAt: string;
+}
+
 async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     headers: { "Content-Type": "application/json" },
@@ -29,6 +41,13 @@ export function useMyDealerships(email: string | undefined) {
         `/api/dealerships?ownerEmail=${encodeURIComponent(email!)}`,
       ),
     enabled: !!email,
+  });
+}
+
+export function usePublicDealerships() {
+  return useQuery({
+    queryKey: ["public-dealerships"],
+    queryFn: () => apiFetch<PublicDealership[]>("/api/public/dealerships"),
   });
 }
 

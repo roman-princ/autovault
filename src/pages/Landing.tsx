@@ -13,6 +13,7 @@ import {
   ArrowRight,
   CheckCircle2,
   Loader2,
+  Compass,
 } from "lucide-react";
 
 const Landing = () => {
@@ -103,6 +104,11 @@ const Landing = () => {
             <span>AutoVault</span>
           </Link>
           <div className="flex items-center gap-4">
+            <Link
+              to="/discover"
+              className="hidden items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex">
+              <Compass className="h-4 w-4" /> Discover
+            </Link>
             {user ? (
               <Link
                 to="#register"
@@ -157,6 +163,11 @@ const Landing = () => {
                 Create Account <ArrowRight className="h-4 w-4" />
               </Link>
             )}
+            <Link
+              to="/discover"
+              className="flex items-center gap-2 rounded-lg border bg-card px-6 py-3 text-sm font-semibold hover:bg-secondary">
+              Explore Dealerships <Compass className="h-4 w-4" />
+            </Link>
           </div>
         </div>
       </section>

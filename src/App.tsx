@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { DealershipProvider } from "@/contexts/DealershipContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing.tsx";
+import DiscoverDealerships from "./pages/DiscoverDealerships.tsx";
 import Index from "./pages/Index.tsx";
 import CarDetail from "./pages/CarDetail.tsx";
 import Compare from "./pages/Compare.tsx";
@@ -32,6 +33,7 @@ const App = () => (
             <Routes>
               {/* SaaS landing page */}
               <Route path="/" element={<Landing />} />
+              <Route path="/discover" element={<DiscoverDealerships />} />
               <Route path="/login" element={<Login />} />
 
               {/* Dealership-scoped routes */}

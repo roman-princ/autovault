@@ -54,6 +54,25 @@ app.get("/api/dealerships/:slug", async (req, res) => {
   res.json(dealership);
 });
 
+// Public directory of dealerships for discovery
+app.get("/api/public/dealerships", async (_req, res) => {
+  const dealerships = await prisma.dealership.findMany({
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      logoUrl: true,
+      primaryColor: true,
+      heroSubtitle: true,
+      address: true,
+      phone: true,
+      createdAt: true,
+    },
+  });
+  res.json(dealerships);
+});
+
 // Get dealership(s) by owner email
 app.get("/api/dealerships", async (req, res) => {
   const email = req.query.ownerEmail as string | undefined;
