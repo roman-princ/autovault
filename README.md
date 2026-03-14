@@ -25,6 +25,12 @@ The app will be available at [http://localhost:8080](http://localhost:8080).
 
 ### 3. Build for production
 
+This project uses Node version 22.22.1, make sure you are using the correct version (see `.nvmrc`):
+
+```sh
+nvm use
+```
+
 ```sh
 bun run build
 ```
