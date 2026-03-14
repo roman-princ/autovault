@@ -10,6 +10,71 @@ const Compare = () => {
   const { data: cars = [], isLoading } = useCars(slug);
   const [selected, setSelected] = useState<string[]>([]);
 
+  const conditionScore: Record<Car["condition"], number> = {
+    New: 3,
+    "Certified Pre-Owned": 2,
+    Used: 1,
+  };
+
+  type CompareRow = {
+    label: string;
+    fn: (c: Car) => string | number;
+    metric?: (c: Car) => number;
+    better?: "higher" | "lower";
+  };
+
+  const compareRows: CompareRow[] = [
+    {
+      label: "Price",
+      fn: (c: Car) => `€${c.price.toLocaleString()}`,
+      metric: (c: Car) => c.price,
+      better: "lower",
+    },
+    {
+      label: "Year",
+      fn: (c: Car) => c.year,
+      metric: (c: Car) => c.year,
+      better: "higher",
+    },
+    {
+      label: "Mileage",
+      fn: (c: Car) => `${c.mileage.toLocaleString()} km`,
+      metric: (c: Car) => c.mileage,
+      better: "lower",
+    },
+    { label: "Fuel", fn: (c: Car) => c.fuel },
+    {
+      label: "Power",
+      fn: (c: Car) => `${c.power} HP`,
+      metric: (c: Car) => c.power,
+      better: "higher",
+    },
+    { label: "Transmission", fn: (c: Car) => c.transmission },
+    { label: "Color", fn: (c: Car) => c.color },
+    {
+      label: "Condition",
+      fn: (c: Car) => c.condition,
+      metric: (c: Car) => conditionScore[c.condition],
+      better: "higher",
+    },
+  ];
+
+  const getCellClass = (row: CompareRow, car: Car): string => {
+    if (!row.metric || !row.better || selectedCars.length < 2) return "";
+
+    const values = selectedCars.map((c) => row.metric!(c));
+    const best =
+      row.better === "higher" ? Math.max(...values) : Math.min(...values);
+    const worst =
+      row.better === "higher" ? Math.min(...values) : Math.max(...values);
+    const value = row.metric(car);
+
+    if (best === worst) return "";
+    if (value === best) return "text-success";
+    if (value === worst) return "text-destructive";
+    return "";
+  };
+
   const toggleCar = (id: string) => {
     setSelected((prev) =>
       prev.includes(id)
@@ -75,28 +140,15 @@ const Compare = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {[
-                      {
-                        label: "Price",
-                        fn: (c: Car) => `€${c.price.toLocaleString()}`,
-                      },
-                      { label: "Year", fn: (c: Car) => c.year },
-                      {
-                        label: "Mileage",
-                        fn: (c: Car) => `${c.mileage.toLocaleString()} km`,
-                      },
-                      { label: "Fuel", fn: (c: Car) => c.fuel },
-                      { label: "Power", fn: (c: Car) => `${c.power} HP` },
-                      { label: "Transmission", fn: (c: Car) => c.transmission },
-                      { label: "Color", fn: (c: Car) => c.color },
-                      { label: "Condition", fn: (c: Car) => c.condition },
-                    ].map((row) => (
+                    {compareRows.map((row) => (
                       <tr key={row.label} className="border-b">
                         <td className="p-3 text-muted-foreground">
                           {row.label}
                         </td>
                         {selectedCars.map((c) => (
-                          <td key={c.id} className="p-3 font-medium">
+                          <td
+                            key={c.id}
+                            className={`p-3 font-medium ${getCellClass(row, c)}`}>
                             {row.fn(c)}
                           </td>
                         ))}

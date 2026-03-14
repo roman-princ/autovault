@@ -4,8 +4,21 @@ A React + TypeScript car dealership application built with Vite, Tailwind CSS, a
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18 or higher)
+- [Node.js](https://nodejs.org/) (v22.x)
 - [Bun](https://bun.sh/) (package manager)
+
+## Environment variables
+
+Create your local env file from the template:
+
+```sh
+cp .env.example .env
+```
+
+Required values:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
 
 ## Getting started
 
