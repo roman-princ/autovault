@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { Car, fuelTypes, transmissionTypes, conditions } from "@/data/cars";
 import {
   useCars,
@@ -6,6 +6,7 @@ import {
   useUpdateCar,
   useDeleteCar,
 } from "@/hooks/use-cars";
+import { useDealershipBookings } from "@/hooks/use-bookings";
 import { useUpdateDealership } from "@/hooks/use-dealership";
 import { useDealershipCtx } from "@/contexts/DealershipContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,6 +19,7 @@ import {
   Eye,
   Palette,
   List,
+  BarChart3,
   RotateCcw,
   Upload,
   X as XIcon,
@@ -31,6 +33,18 @@ import {
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { useTheme } from "@/contexts/ThemeContext";
+import {
+  useDealershipAnalytics,
+  useClearDealershipAnalytics,
+} from "@/hooks/use-analytics";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const emptyForm: Omit<Car, "id" | "images" | "dealershipId"> = {
   brand: "",
@@ -50,6 +64,11 @@ const emptyForm: Omit<Car, "id" | "images" | "dealershipId"> = {
 const Admin = () => {
   const { slug, dealership } = useDealershipCtx();
   const { data: listings = [], isLoading } = useCars(slug);
+  const {
+    data: bookings = [],
+    isLoading: bookingsLoading,
+    error: bookingsError,
+  } = useDealershipBookings(dealership.id);
   const createCar = useCreateCar(slug);
   const updateCar = useUpdateCar(slug);
   const deleteCar = useDeleteCar(slug);
@@ -62,9 +81,10 @@ const Admin = () => {
   const [images, setImages] = useState<string[]>([]);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [draggingIdx, setDraggingIdx] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<"listings" | "customization">(
-    "listings",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "dashboard" | "listings" | "customization"
+  >("dashboard");
+  const [bookingsOpen, setBookingsOpen] = useState(false);
   const [phone, setPhone] = useState(dealership.phone);
   const [address, setAddress] = useState(dealership.address);
   const [aboutUs, setAboutUs] = useState(dealership.aboutUs);
@@ -79,6 +99,12 @@ const Admin = () => {
   const [heroSubtitle, setHeroSubtitle] = useState(dealership.heroSubtitle);
   const { updateTheme } = useTheme(); // used only for live color/logo preview
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const {
+    data: analytics,
+    isLoading: analyticsLoading,
+    error: analyticsError,
+  } = useDealershipAnalytics(dealership.id);
+  const clearAnalytics = useClearDealershipAnalytics(dealership.id);
 
   const handleSave = async () => {
     if (!form.brand || !form.model || !form.price) {
@@ -191,6 +217,54 @@ const Admin = () => {
 
   const showForm = creating || editing;
 
+  const safeAnalytics =
+    analytics ??
+    ({
+      impressions: 0,
+      testDriveBookings: 0,
+      depositIntents: 0,
+      lastUpdatedAt: null,
+      perCar: {},
+      leadEvents: [],
+    } as const);
+
+  const bookingCount = bookings.length;
+  const leads = bookingCount + safeAnalytics.depositIntents;
+  const bookingRate =
+    safeAnalytics.impressions > 0
+      ? (bookingCount / safeAnalytics.impressions) * 100
+      : 0;
+  const leadRate =
+    safeAnalytics.impressions > 0
+      ? (leads / safeAnalytics.impressions) * 100
+      : 0;
+
+  const bookingsByCar = useMemo(() => {
+    return bookings.reduce<Record<string, number>>((acc, booking) => {
+      acc[booking.carId] = (acc[booking.carId] ?? 0) + 1;
+      return acc;
+    }, {});
+  }, [bookings]);
+
+  const topCars = useMemo(() => {
+    const rows = Object.entries(safeAnalytics.perCar).map(
+      ([carId, metrics]) => {
+        const car = listings.find((item) => item.id === carId);
+        const name = car
+          ? `${car.brand} ${car.model}`
+          : `Deleted car #${carId}`;
+        return {
+          carId,
+          name,
+          ...metrics,
+          testDriveBookings: bookingsByCar[carId] ?? 0,
+        };
+      },
+    );
+
+    return rows.sort((a, b) => b.impressions - a.impressions).slice(0, 5);
+  }, [safeAnalytics.perCar, listings, bookingsByCar]);
+
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -239,6 +313,15 @@ const Admin = () => {
         {/* Tabs */}
         <div className="mt-6 flex gap-1 border-b">
           <button
+            onClick={() => setActiveTab("dashboard")}
+            className={`flex items-center gap-2 border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+              activeTab === "dashboard"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}>
+            <BarChart3 className="h-4 w-4" /> Dashboard
+          </button>
+          <button
             onClick={() => setActiveTab("listings")}
             className={`flex items-center gap-2 border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
               activeTab === "listings"
@@ -257,6 +340,255 @@ const Admin = () => {
             <Palette className="h-4 w-4" /> Customization
           </button>
         </div>
+
+        {/* ── Dashboard Tab ─────────────────────────────────────────────── */}
+        {activeTab === "dashboard" && (
+          <div className="mt-6 animate-fade-in space-y-6">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-xs text-muted-foreground">Impressions</p>
+                <p className="mt-2 font-display text-3xl font-bold">
+                  {safeAnalytics.impressions}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Car detail visits from card clicks
+                </p>
+              </div>
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-xs text-muted-foreground">Test Drives</p>
+                <p className="mt-2 font-display text-3xl font-bold">
+                  {bookingCount}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  DB bookings
+                </p>
+              </div>
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-xs text-muted-foreground">Deposit Intents</p>
+                <p className="mt-2 font-display text-3xl font-bold">
+                  {safeAnalytics.depositIntents}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Reserve button clicks
+                </p>
+              </div>
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-xs text-muted-foreground">Lead Rate</p>
+                <p className="mt-2 font-display text-3xl font-bold">
+                  {leadRate.toFixed(1)}%
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  (Bookings + deposits) / impressions
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-lg border bg-card p-4">
+                <h2 className="font-display text-lg font-semibold">
+                  Conversion Snapshot
+                </h2>
+                <div className="mt-4 space-y-3 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Booking rate</span>
+                    <span className="font-semibold">
+                      {bookingRate.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">
+                      Leads captured
+                    </span>
+                    <span className="font-semibold">{leads}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">
+                      Tracked vehicles
+                    </span>
+                    <span className="font-semibold">
+                      {Object.keys(safeAnalytics.perCar).length}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Last update</span>
+                    <span className="font-semibold">
+                      {safeAnalytics.lastUpdatedAt
+                        ? new Date(safeAnalytics.lastUpdatedAt).toLocaleString()
+                        : "No activity yet"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-lg border bg-card p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="font-display text-lg font-semibold">
+                    Top Performing Cars
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    <Dialog open={bookingsOpen} onOpenChange={setBookingsOpen}>
+                      <DialogTrigger asChild>
+                        <button className="rounded-md border px-3 py-1.5 text-xs font-semibold hover:bg-secondary">
+                          View Bookings
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Test Drive Bookings</DialogTitle>
+                          <DialogDescription>
+                            Detailed booking requests with customer contact
+                            info.
+                          </DialogDescription>
+                        </DialogHeader>
+
+                        {bookingsLoading ? (
+                          <p className="text-sm text-muted-foreground">
+                            Loading bookings...
+                          </p>
+                        ) : bookingsError ? (
+                          <p className="text-sm text-destructive">
+                            Failed to load bookings.
+                          </p>
+                        ) : bookings.length === 0 ? (
+                          <p className="text-sm text-muted-foreground">
+                            No test drive bookings yet.
+                          </p>
+                        ) : (
+                          <div className="overflow-x-auto rounded-lg border">
+                            <table className="w-full text-sm">
+                              <thead>
+                                <tr className="border-b bg-muted/50">
+                                  <th className="p-3 text-left font-medium text-muted-foreground">
+                                    Customer
+                                  </th>
+                                  <th className="p-3 text-left font-medium text-muted-foreground">
+                                    Contact
+                                  </th>
+                                  <th className="p-3 text-left font-medium text-muted-foreground">
+                                    Car
+                                  </th>
+                                  <th className="p-3 text-left font-medium text-muted-foreground">
+                                    Preferred Date
+                                  </th>
+                                  <th className="p-3 text-left font-medium text-muted-foreground">
+                                    Requested At
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {bookings.map((booking) => (
+                                  <tr
+                                    key={booking.id}
+                                    className="border-b last:border-0">
+                                    <td className="p-3 font-medium">
+                                      {booking.customerName}
+                                    </td>
+                                    <td className="p-3">
+                                      <div className="space-y-0.5">
+                                        <p>{booking.customerEmail}</p>
+                                        <p className="text-muted-foreground">
+                                          {booking.customerPhone}
+                                        </p>
+                                      </div>
+                                    </td>
+                                    <td className="p-3">{booking.carLabel}</td>
+                                    <td className="p-3">
+                                      {booking.preferredDate}
+                                    </td>
+                                    <td className="p-3 text-muted-foreground">
+                                      {new Date(
+                                        booking.createdAt,
+                                      ).toLocaleString()}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </DialogContent>
+                    </Dialog>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await clearAnalytics.mutateAsync();
+                          toast.success("Analytics reset");
+                        } catch (err: any) {
+                          toast.error(
+                            err.message || "Failed to reset analytics",
+                          );
+                        }
+                      }}
+                      className="rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/10">
+                      Reset Analytics
+                    </button>
+                  </div>
+                </div>
+
+                {topCars.length === 0 ? (
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    No analytics data yet. Ask visitors to open car details and
+                    book test drives.
+                  </p>
+                ) : (
+                  <div className="mt-4 space-y-3">
+                    {topCars.map((row) => (
+                      <div
+                        key={row.carId}
+                        className="rounded-md border bg-background p-3">
+                        <p className="font-medium">{row.name}</p>
+                        <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                          <span>Impressions: {row.impressions}</span>
+                          <span>Bookings: {row.testDriveBookings}</span>
+                          <span>Deposits: {row.depositIntents}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-lg border bg-card p-4">
+              <h2 className="font-display text-lg font-semibold">
+                Recent Lead Events
+              </h2>
+              {analyticsLoading ? (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Loading analytics...
+                </p>
+              ) : analyticsError ? (
+                <p className="mt-3 text-sm text-destructive">
+                  Failed to load analytics.
+                </p>
+              ) : safeAnalytics.leadEvents.length === 0 ? (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  No lead activity yet.
+                </p>
+              ) : (
+                <div className="mt-3 space-y-2">
+                  {safeAnalytics.leadEvents.slice(0, 10).map((event) => (
+                    <div
+                      key={event.id}
+                      className="flex items-center justify-between rounded-md border bg-background px-3 py-2 text-sm">
+                      <div>
+                        <p className="font-medium">{event.carLabel}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {event.type === "testDriveBooking"
+                            ? "Test drive booked"
+                            : "Deposit intent"}
+                        </p>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(event.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* ── Customization Tab ─────────────────────────────────────────── */}
         {activeTab === "customization" && (

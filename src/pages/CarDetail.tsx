@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useCar } from "@/hooks/use-cars";
 import { useDealershipCtx } from "@/contexts/DealershipContext";
+import { useCreateCarBooking } from "@/hooks/use-bookings";
 import Navbar from "@/components/Navbar";
 import {
   ArrowLeft,
@@ -15,15 +16,18 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 
 const CarDetail = () => {
   const { id } = useParams();
-  const { slug } = useDealershipCtx();
+  const { slug, dealership } = useDealershipCtx();
   const { data: car, isLoading } = useCar(id);
+  const createBooking = useCreateCarBooking();
   const [showTestDrive, setShowTestDrive] = useState(false);
   const [testDriveDate, setTestDriveDate] = useState("");
   const [testDriveName, setTestDriveName] = useState("");
   const [testDriveEmail, setTestDriveEmail] = useState("");
+  const [testDrivePhone, setTestDrivePhone] = useState("");
   const [activeImage, setActiveImage] = useState(0);
 
   if (isLoading) {
@@ -56,24 +60,60 @@ const CarDetail = () => {
   const placeholderBg = "from-primary/10 to-accent/10";
 
   const handleDeposit = () => {
+    if (car) {
+      void trackAnalyticsEvent(
+        dealership.id,
+        car.id,
+        "depositIntent",
+        `${car.brand} ${car.model}`,
+      );
+    }
     toast.success(
       "Deposit reserved! (This is a demo — no real payment was processed)",
     );
   };
 
-  const handleTestDrive = (e: React.FormEvent) => {
+  const handleTestDrive = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!testDriveDate || !testDriveName || !testDriveEmail) {
+    if (
+      !testDriveDate ||
+      !testDriveName ||
+      !testDriveEmail ||
+      !testDrivePhone
+    ) {
       toast.error("Please fill in all fields");
       return;
     }
-    toast.success(
-      `Test drive booked for ${testDriveDate}! We'll confirm via email.`,
-    );
-    setShowTestDrive(false);
-    setTestDriveDate("");
-    setTestDriveName("");
-    setTestDriveEmail("");
+
+    try {
+      await createBooking.mutateAsync({
+        dealershipId: dealership.id,
+        carId: car.id,
+        carLabel: `${car.brand} ${car.model}`,
+        customerName: testDriveName.trim(),
+        customerEmail: testDriveEmail.trim(),
+        customerPhone: testDrivePhone.trim(),
+        preferredDate: testDriveDate,
+      });
+
+      void trackAnalyticsEvent(
+        dealership.id,
+        car.id,
+        "testDriveBooking",
+        `${car.brand} ${car.model}`,
+      );
+
+      toast.success(
+        `Test drive booked for ${testDriveDate}! We'll confirm via email.`,
+      );
+      setShowTestDrive(false);
+      setTestDriveDate("");
+      setTestDriveName("");
+      setTestDriveEmail("");
+      setTestDrivePhone("");
+    } catch (err: any) {
+      toast.error(err.message || "Booking failed");
+    }
   };
 
   return (
@@ -240,6 +280,13 @@ const CarDetail = () => {
               className="h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
             <input
+              type="tel"
+              placeholder="Phone number"
+              value={testDrivePhone}
+              onChange={(e) => setTestDrivePhone(e.target.value)}
+              className="h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+            />
+            <input
               type="date"
               value={testDriveDate}
               onChange={(e) => setTestDriveDate(e.target.value)}
@@ -247,8 +294,9 @@ const CarDetail = () => {
             />
             <button
               type="submit"
+              disabled={createBooking.isPending}
               className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
-              Confirm Booking
+              {createBooking.isPending ? "Booking..." : "Confirm Booking"}
             </button>
           </form>
         )}

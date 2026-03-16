@@ -2,9 +2,10 @@ import { Car } from "@/data/cars";
 import { Link } from "react-router-dom";
 import { useDealershipCtx } from "@/contexts/DealershipContext";
 import { Fuel, Gauge, Calendar, Zap } from "lucide-react";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 
 const CarCard = ({ car }: { car: Car }) => {
-  const { slug } = useDealershipCtx();
+  const { slug, dealership } = useDealershipCtx();
   const placeholderBg = [
     "from-primary/20 to-primary/5",
     "from-accent/20 to-accent/5",
@@ -15,6 +16,14 @@ const CarCard = ({ car }: { car: Car }) => {
   return (
     <Link
       to={`/d/${slug}/car/${car.id}`}
+      onClick={() =>
+        void trackAnalyticsEvent(
+          dealership.id,
+          car.id,
+          "impression",
+          `${car.brand} ${car.model}`,
+        )
+      }
       className="group flex flex-col overflow-hidden rounded-lg border bg-card transition-all hover:shadow-lg hover:-translate-y-1">
       {/* Image */}
       <div className="relative aspect-[16/10] bg-muted">

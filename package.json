@@ -10,7 +10,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "supabase:link": "bunx supabase link",
+    "supabase:db:push": "bunx supabase db push",
+    "supabase:types": "bunx supabase gen types typescript --linked --schema public > src/lib/database.types.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
