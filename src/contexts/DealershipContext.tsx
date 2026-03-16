@@ -15,7 +15,7 @@ const DealershipContext = createContext<DealershipContextValue | null>(null);
 export function DealershipProvider({ children }: { children: ReactNode }) {
   const { slug } = useParams<{ slug: string }>();
   const { data: dealership, isLoading, error } = useDealership(slug);
-  const { updateTheme } = useTheme();
+  const { updateTheme, resetTheme } = useTheme();
 
   // Sync dealership branding into the ThemeContext when it loads
   useEffect(() => {
@@ -29,6 +29,11 @@ export function DealershipProvider({ children }: { children: ReactNode }) {
       heroSubtitle: dealership.heroSubtitle,
     });
   }, [dealership]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Reset CSS vars to defaults when leaving dealership pages
+  useEffect(() => {
+    return () => resetTheme(); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   if (isLoading) {
     return (

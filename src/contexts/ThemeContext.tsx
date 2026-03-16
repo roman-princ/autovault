@@ -109,9 +109,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [config, setConfig] = useState<ThemeConfig>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      return stored
-        ? { ...DEFAULT_THEME, ...JSON.parse(stored) }
-        : DEFAULT_THEME;
+      // Only restore darkMode preference; branding is always loaded from the DB
+      const darkMode = stored
+        ? ((JSON.parse(stored) as Partial<ThemeConfig>).darkMode ?? false)
+        : false;
+      return { ...DEFAULT_THEME, darkMode };
     } catch {
       return DEFAULT_THEME;
     }
@@ -119,7 +121,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     applyThemeToDOM(config);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+    // Only persist the user-level darkMode preference to localStorage
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ darkMode: config.darkMode }),
+    );
   }, [config]);
 
   const updateTheme = (updates: Partial<ThemeConfig>) =>

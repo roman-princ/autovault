@@ -68,16 +68,16 @@ const Admin = () => {
   const [phone, setPhone] = useState(dealership.phone);
   const [address, setAddress] = useState(dealership.address);
   const [aboutUs, setAboutUs] = useState(dealership.aboutUs);
-  const {
-    dealershipName,
-    logoUrl,
-    primaryColor,
-    secondaryColor,
-    heroTitle,
-    heroSubtitle,
-    updateTheme,
-    resetTheme,
-  } = useTheme();
+  // Local state for all branding fields — edits stay local until saved to DB
+  const [dealershipName, setDealershipName] = useState(dealership.name);
+  const [logoUrl, setLogoUrl] = useState<string | null>(dealership.logoUrl);
+  const [primaryColor, setPrimaryColor] = useState(dealership.primaryColor);
+  const [secondaryColor, setSecondaryColor] = useState(
+    dealership.secondaryColor,
+  );
+  const [heroTitle, setHeroTitle] = useState(dealership.heroTitle);
+  const [heroSubtitle, setHeroSubtitle] = useState(dealership.heroSubtitle);
+  const { updateTheme } = useTheme(); // used only for live color/logo preview
   const logoInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = async () => {
@@ -203,7 +203,11 @@ const Admin = () => {
       return;
     }
     const reader = new FileReader();
-    reader.onload = () => updateTheme({ logoUrl: reader.result as string });
+    reader.onload = () => {
+      const url = reader.result as string;
+      setLogoUrl(url);
+      updateTheme({ logoUrl: url }); // live navbar preview
+    };
     reader.readAsDataURL(file);
   };
 
@@ -265,9 +269,7 @@ const Admin = () => {
                   <label className="text-sm font-medium">Dealership Name</label>
                   <input
                     value={dealershipName}
-                    onChange={(e) =>
-                      updateTheme({ dealershipName: e.target.value })
-                    }
+                    onChange={(e) => setDealershipName(e.target.value)}
                     className="mt-1 h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>
@@ -277,7 +279,7 @@ const Admin = () => {
                   <label className="text-sm font-medium">Hero Title</label>
                   <input
                     value={heroTitle}
-                    onChange={(e) => updateTheme({ heroTitle: e.target.value })}
+                    onChange={(e) => setHeroTitle(e.target.value)}
                     className="mt-1 h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>
@@ -287,9 +289,7 @@ const Admin = () => {
                   <label className="text-sm font-medium">Hero Subtitle</label>
                   <textarea
                     value={heroSubtitle}
-                    onChange={(e) =>
-                      updateTheme({ heroSubtitle: e.target.value })
-                    }
+                    onChange={(e) => setHeroSubtitle(e.target.value)}
                     rows={2}
                     className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                   />
@@ -316,7 +316,10 @@ const Admin = () => {
                           className="h-10 w-10 rounded-md border object-contain"
                         />
                         <button
-                          onClick={() => updateTheme({ logoUrl: null })}
+                          onClick={() => {
+                            setLogoUrl(null);
+                            updateTheme({ logoUrl: null });
+                          }}
                           className="absolute -right-1.5 -top-1.5 rounded-full bg-destructive p-0.5 text-destructive-foreground"
                           title="Remove logo">
                           <XIcon className="h-3 w-3" />
@@ -353,16 +356,19 @@ const Admin = () => {
                     <input
                       type="color"
                       value={primaryColor}
-                      onChange={(e) =>
-                        updateTheme({ primaryColor: e.target.value })
-                      }
+                      onChange={(e) => {
+                        setPrimaryColor(e.target.value);
+                        updateTheme({ primaryColor: e.target.value }); // live preview
+                      }}
                       className="h-9 w-12 cursor-pointer rounded-md border p-0.5"
                     />
                     <input
                       value={primaryColor}
                       onChange={(e) => {
-                        if (/^#[0-9a-f]{6}$/i.test(e.target.value))
-                          updateTheme({ primaryColor: e.target.value });
+                        if (/^#[0-9a-f]{6}$/i.test(e.target.value)) {
+                          setPrimaryColor(e.target.value);
+                          updateTheme({ primaryColor: e.target.value }); // live preview
+                        }
                       }}
                       maxLength={7}
                       className="h-9 w-28 rounded-md border bg-background px-3 font-mono text-sm outline-none focus:ring-2 focus:ring-ring"
@@ -380,16 +386,19 @@ const Admin = () => {
                     <input
                       type="color"
                       value={secondaryColor}
-                      onChange={(e) =>
-                        updateTheme({ secondaryColor: e.target.value })
-                      }
+                      onChange={(e) => {
+                        setSecondaryColor(e.target.value);
+                        updateTheme({ secondaryColor: e.target.value }); // live preview
+                      }}
                       className="h-9 w-12 cursor-pointer rounded-md border p-0.5"
                     />
                     <input
                       value={secondaryColor}
                       onChange={(e) => {
-                        if (/^#[0-9a-f]{6}$/i.test(e.target.value))
-                          updateTheme({ secondaryColor: e.target.value });
+                        if (/^#[0-9a-f]{6}$/i.test(e.target.value)) {
+                          setSecondaryColor(e.target.value);
+                          updateTheme({ secondaryColor: e.target.value }); // live preview
+                        }
                       }}
                       maxLength={7}
                       className="h-9 w-28 rounded-md border bg-background px-3 font-mono text-sm outline-none focus:ring-2 focus:ring-ring"
@@ -470,6 +479,15 @@ const Admin = () => {
                       address,
                       aboutUs,
                     });
+                    // Sync ThemeContext with the newly saved values
+                    updateTheme({
+                      dealershipName,
+                      logoUrl,
+                      primaryColor,
+                      secondaryColor,
+                      heroTitle,
+                      heroSubtitle,
+                    });
                     toast.success("Customization saved");
                   } catch (err: any) {
                     toast.error(err.message || "Failed to save");
@@ -484,11 +502,27 @@ const Admin = () => {
               </button>
               <button
                 onClick={() => {
-                  resetTheme();
-                  toast.success("Theme reset to defaults");
+                  setDealershipName(dealership.name);
+                  setLogoUrl(dealership.logoUrl);
+                  setPrimaryColor(dealership.primaryColor);
+                  setSecondaryColor(dealership.secondaryColor);
+                  setHeroTitle(dealership.heroTitle);
+                  setHeroSubtitle(dealership.heroSubtitle);
+                  setPhone(dealership.phone);
+                  setAddress(dealership.address);
+                  setAboutUs(dealership.aboutUs);
+                  updateTheme({
+                    dealershipName: dealership.name,
+                    logoUrl: dealership.logoUrl,
+                    primaryColor: dealership.primaryColor,
+                    secondaryColor: dealership.secondaryColor,
+                    heroTitle: dealership.heroTitle,
+                    heroSubtitle: dealership.heroSubtitle,
+                  });
+                  toast.success("Reset to last saved values");
                 }}
                 className="flex items-center gap-2 rounded-lg border border-destructive/30 px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive/10">
-                <RotateCcw className="h-4 w-4" /> Reset to Defaults
+                <RotateCcw className="h-4 w-4" /> Discard Changes
               </button>
             </div>
           </div>
