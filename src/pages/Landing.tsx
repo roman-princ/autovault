@@ -5,6 +5,7 @@ import {
   useMyDealerships,
   useRegisterDealership,
 } from "@/hooks/use-dealership";
+import { useTheme } from "@/contexts/ThemeContext";
 import {
   Car,
   Store,
@@ -14,10 +15,13 @@ import {
   CheckCircle2,
   Loader2,
   Compass,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 const Landing = () => {
   const { user, loading: authLoading } = useAuth();
+  const { darkMode, toggleDarkMode } = useTheme();
   const { data: myDealerships = [] } = useMyDealerships(
     user?.email ?? undefined,
   );
@@ -109,6 +113,16 @@ const Landing = () => {
               className="hidden items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex">
               <Compass className="h-4 w-4" /> Discover
             </Link>
+            <button
+              onClick={toggleDarkMode}
+              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              title={darkMode ? "Switch to light mode" : "Switch to dark mode"}>
+              {darkMode ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </button>
             {user ? (
               <>
                 <Link
