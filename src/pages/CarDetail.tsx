@@ -111,8 +111,8 @@ const CarDetail = () => {
       setTestDriveName("");
       setTestDriveEmail("");
       setTestDrivePhone("");
-    } catch (err: any) {
-      toast.error(err.message || "Booking failed");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Booking failed");
     }
   };
 

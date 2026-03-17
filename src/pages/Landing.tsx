@@ -68,8 +68,8 @@ const Landing = () => {
         address: address.trim(),
       });
       navigate(`/d/${d.slug}/admin`);
-    } catch (err: any) {
-      setError(err.message || "Registration failed");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed");
     }
   };
 

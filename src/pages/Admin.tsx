@@ -124,8 +124,8 @@ const Admin = () => {
       }
       setForm(emptyForm);
       setImages([]);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to save");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save");
     }
   };
 
@@ -133,8 +133,8 @@ const Admin = () => {
     try {
       await deleteCar.mutateAsync(id);
       toast.success("Listing deleted");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to delete");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete");
     }
   };
 
@@ -513,9 +513,11 @@ const Admin = () => {
                         try {
                           await clearAnalytics.mutateAsync();
                           toast.success("Analytics reset");
-                        } catch (err: any) {
+                        } catch (err) {
                           toast.error(
-                            err.message || "Failed to reset analytics",
+                            err instanceof Error
+                              ? err.message
+                              : "Failed to reset analytics",
                           );
                         }
                       }}
@@ -821,8 +823,10 @@ const Admin = () => {
                       heroSubtitle,
                     });
                     toast.success("Customization saved");
-                  } catch (err: any) {
-                    toast.error(err.message || "Failed to save");
+                  } catch (err) {
+                    toast.error(
+                      err instanceof Error ? err.message : "Failed to save",
+                    );
                   }
                 }}
                 disabled={updateDealership.isPending}
