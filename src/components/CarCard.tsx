@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useDealershipCtx } from "@/contexts/DealershipContext";
 import { Fuel, Gauge, Calendar, Zap } from "lucide-react";
 import { trackAnalyticsEvent } from "@/lib/analytics";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const CarCard = ({ car }: { car: Car }) => {
   const { slug, dealership } = useDealershipCtx();
@@ -26,7 +27,7 @@ const CarCard = ({ car }: { car: Car }) => {
       }
       className="group flex flex-col overflow-hidden rounded-lg border bg-card transition-all hover:shadow-lg hover:-translate-y-1">
       {/* Image */}
-      <div className="relative aspect-[16/10] bg-muted">
+      <AspectRatio ratio={16 / 9} className="relative overflow-hidden bg-muted">
         {car.images && car.images.length > 0 ? (
           <img
             src={car.images[0]}
@@ -49,7 +50,7 @@ const CarCard = ({ car }: { car: Car }) => {
             New
           </span>
         )}
-      </div>
+      </AspectRatio>
 
       <div className="flex flex-1 flex-col p-4">
         <h3 className="font-display text-lg font-semibold">

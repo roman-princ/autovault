@@ -1197,7 +1197,7 @@ const Admin = () => {
                           onDragStart={() => handleDragStart(idx)}
                           onDragOver={(e) => e.preventDefault()}
                           onDrop={() => handleDrop(idx)}
-                          className={`group relative h-28 w-28 shrink-0 overflow-hidden rounded-lg border-2 ${
+                          className={`group relative aspect-[16/9] w-40 shrink-0 overflow-hidden rounded-lg border-2 ${
                             idx === 0
                               ? "border-primary"
                               : "border-transparent hover:border-muted-foreground/30"
@@ -1234,7 +1234,7 @@ const Admin = () => {
                       <button
                         type="button"
                         onClick={() => imageInputRef.current?.click()}
-                        className="flex h-28 w-28 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed text-muted-foreground transition-colors hover:border-primary hover:text-primary">
+                        className="flex aspect-[16/9] w-40 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed text-muted-foreground transition-colors hover:border-primary hover:text-primary">
                         <ImagePlus className="h-6 w-6" />
                         <span className="text-xs font-medium">Add</span>
                       </button>
