@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -12,6 +12,7 @@ const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   if (loading) return null;
   if (user) return <Navigate to="/" replace />;
@@ -32,6 +33,12 @@ const Login = () => {
     } else if (isSignUp) {
       setError("Check your email to confirm your account.");
     }
+  };
+
+  const handleEnterSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    formRef.current?.requestSubmit();
   };
 
   return (
@@ -60,6 +67,7 @@ const Login = () => {
         </div>
 
         <form
+          ref={formRef}
           onSubmit={handleSubmit}
           className="space-y-4 rounded-lg border bg-card p-6">
           <div>
@@ -69,6 +77,7 @@ const Login = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={handleEnterSubmit}
               className="mt-1 h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
               placeholder="admin@example.com"
             />
@@ -81,6 +90,7 @@ const Login = () => {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={handleEnterSubmit}
               className="mt-1 h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
               placeholder="••••••••"
             />

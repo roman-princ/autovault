@@ -44,6 +44,7 @@ import {
   parseListingsFromExcelFile,
   parseListingsFromJsonText,
 } from "@/lib/listing-import";
+import { optimizeImageFile } from "@/lib/image-processing";
 import {
   Dialog,
   DialogContent,
@@ -182,19 +183,34 @@ const Admin = () => {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
+    const optimizedImages: string[] = [];
+
     for (const file of files) {
       if (!file.type.startsWith("image/")) continue;
       if (file.size > 5_000_000) {
         toast.error(`"${file.name}" is over 5 MB — skipped`);
         continue;
       }
-      const reader = new FileReader();
-      reader.onload = () =>
-        setImages((prev) => [...prev, reader.result as string]);
-      reader.readAsDataURL(file);
+
+      try {
+        const optimized = await optimizeImageFile(file, {
+          maxWidth: 1600,
+          maxHeight: 900,
+          quality: 0.82,
+          format: "image/webp",
+        });
+        optimizedImages.push(optimized);
+      } catch {
+        toast.error(`"${file.name}" could not be optimized — skipped`);
+      }
     }
+
+    if (optimizedImages.length > 0) {
+      setImages((prev) => [...prev, ...optimizedImages]);
+    }
+
     // reset input so re-selecting the same file works
     e.target.value = "";
   };
@@ -275,7 +291,7 @@ const Admin = () => {
     return rows.sort((a, b) => b.impressions - a.impressions).slice(0, 5);
   }, [safeAnalytics.perCar, listings, bookingsByCar]);
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
@@ -286,13 +302,19 @@ const Admin = () => {
       toast.error("Logo must be under 500 KB");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const url = reader.result as string;
+
+    try {
+      const url = await optimizeImageFile(file, {
+        maxWidth: 512,
+        maxHeight: 512,
+        quality: 0.9,
+        format: "image/webp",
+      });
       setLogoUrl(url);
       updateTheme({ logoUrl: url }); // live navbar preview
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      toast.error("Logo could not be processed");
+    }
   };
 
   const handleImportedListings = async (
@@ -1179,7 +1201,8 @@ const Admin = () => {
                     <label className="text-sm font-medium">Images</label>
                     <p className="text-xs text-muted-foreground">
                       First image is the cover photo. Drag to reorder or click
-                      the star to set as cover.
+                      the star to set as cover. Images are auto-optimized to
+                      reduce storage usage.
                     </p>
                     <input
                       ref={imageInputRef}
