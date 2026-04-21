@@ -1,6 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 
+function getTodayLocalDateISO(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export interface CarBooking {
   id: string;
   dealershipId: string;
@@ -70,6 +78,10 @@ export function useCreateCarBooking() {
       booking: Omit<CarBooking, "id" | "source" | "notes" | "createdAt"> &
         Partial<Pick<CarBooking, "source" | "notes">>,
     ) => {
+      if (booking.preferredDate < getTodayLocalDateISO()) {
+        throw new Error("Preferred date cannot be in the past");
+      }
+
       const { data, error } = await supabase
         .from("car_bookings")
         .insert({

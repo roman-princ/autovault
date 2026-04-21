@@ -18,6 +18,14 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { trackAnalyticsEvent } from "@/lib/analytics";
 
+function getTodayLocalDateISO(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 const CarDetail = () => {
   const { id } = useParams();
   const { slug, dealership } = useDealershipCtx();
@@ -29,6 +37,7 @@ const CarDetail = () => {
   const [testDriveEmail, setTestDriveEmail] = useState("");
   const [testDrivePhone, setTestDrivePhone] = useState("");
   const [activeImage, setActiveImage] = useState(0);
+  const minBookingDate = getTodayLocalDateISO();
 
   if (isLoading) {
     return (
@@ -82,6 +91,11 @@ const CarDetail = () => {
       !testDrivePhone
     ) {
       toast.error("Please fill in all fields");
+      return;
+    }
+
+    if (testDriveDate < minBookingDate) {
+      toast.error("Please choose today or a future date");
       return;
     }
 
@@ -288,6 +302,7 @@ const CarDetail = () => {
             />
             <input
               type="date"
+              min={minBookingDate}
               value={testDriveDate}
               onChange={(e) => setTestDriveDate(e.target.value)}
               className="h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
