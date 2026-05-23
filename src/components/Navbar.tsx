@@ -1,5 +1,13 @@
 import { Link } from "react-router-dom";
-import { Car as CarIcon, Settings, Menu, X, Sun, Moon } from "lucide-react";
+import {
+  Car as CarIcon,
+  Settings,
+  Menu,
+  X,
+  Sun,
+  Moon,
+  Store,
+} from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useDealershipCtx } from "@/contexts/DealershipContext";
@@ -67,6 +75,12 @@ const Navbar = () => {
               Admin
             </Link>
           )}
+          <Link
+            to="/discover"
+            className="flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary">
+            <Store className="h-3.5 w-3.5" />
+            Back to Main Portal
+          </Link>
           <button
             onClick={toggleDarkMode}
             className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
@@ -133,6 +147,13 @@ const Navbar = () => {
                 Admin Panel
               </Link>
             )}
+            <Link
+              to="/discover"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-2 text-sm font-medium">
+              <Store className="h-4 w-4" />
+              Back to Main Portal
+            </Link>
             <button
               onClick={toggleDarkMode}
               className="flex items-center gap-2 text-sm font-medium">

@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useCar } from "@/hooks/use-cars";
+import { getCarImageAlt } from "@/data/cars";
 import { useDealershipCtx } from "@/contexts/DealershipContext";
 import { useCreateCarBooking } from "@/hooks/use-bookings";
 import Navbar from "@/components/Navbar";
@@ -147,7 +148,7 @@ const CarDetail = () => {
             <div className="aspect-[16/9] overflow-hidden rounded-lg">
               <img
                 src={car.images[activeImage]}
-                alt={`${car.brand} ${car.model}`}
+                alt={getCarImageAlt(car, activeImage + 1)}
                 className="h-full w-full object-cover"
               />
             </div>
@@ -164,7 +165,7 @@ const CarDetail = () => {
                     }`}>
                     <img
                       src={src}
-                      alt={`Thumbnail ${idx + 1}`}
+                      alt={getCarImageAlt(car, idx + 1)}
                       className="h-full w-full object-cover"
                     />
                   </button>

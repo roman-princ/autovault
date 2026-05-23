@@ -1,5 +1,11 @@
 import { useState, useRef, useMemo } from "react";
-import { Car, fuelTypes, transmissionTypes, conditions } from "@/data/cars";
+import {
+  Car,
+  fuelTypes,
+  transmissionTypes,
+  conditions,
+  getCarImageAlt,
+} from "@/data/cars";
 import {
   useCars,
   useCreateCar,
@@ -1227,7 +1233,7 @@ const Admin = () => {
                           }`}>
                           <img
                             src={src}
-                            alt={`Car image ${idx + 1}`}
+                            alt={getCarImageAlt(form, idx + 1)}
                             className="h-full w-full object-cover"
                           />
                           {idx === 0 && (

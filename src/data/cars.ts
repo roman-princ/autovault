@@ -35,3 +35,40 @@ export interface Car {
 export const fuelTypes = ["Petrol", "Diesel", "Electric", "Hybrid"] as const;
 export const transmissionTypes = ["Manual", "Automatic"] as const;
 export const conditions = ["New", "Used", "Certified Pre-Owned"] as const;
+
+/**
+ * Build descriptive alt text for a car image from its vehicle specifications,
+ * so screen readers convey the visual instead of skipping it. Accepts a partial
+ * car (e.g. an in-progress admin form) and gracefully omits empty fields.
+ *
+ * Example: "2021 BMW 320i — Blue, Diesel, Automatic, Used (photo 2)"
+ */
+export function getCarImageAlt(
+  car: Partial<
+    Pick<
+      Car,
+      | "year"
+      | "brand"
+      | "model"
+      | "color"
+      | "fuel"
+      | "transmission"
+      | "condition"
+    >
+  >,
+  position?: number,
+): string {
+  const name = [car.year, car.brand, car.model]
+    .filter((part) => part !== undefined && part !== null && part !== "")
+    .join(" ")
+    .trim();
+
+  const details = [car.color, car.fuel, car.transmission, car.condition]
+    .filter((part) => part !== undefined && part !== null && part !== "")
+    .join(", ");
+
+  const headline = name || "Vehicle";
+  const base = details ? `${headline} — ${details}` : headline;
+
+  return position && position > 1 ? `${base} (photo ${position})` : base;
+}

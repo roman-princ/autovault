@@ -1,4 +1,4 @@
-import { Car } from "@/data/cars";
+import { Car, getCarImageAlt } from "@/data/cars";
 import { Link } from "react-router-dom";
 import { useDealershipCtx } from "@/contexts/DealershipContext";
 import { Fuel, Gauge, Calendar, Zap } from "lucide-react";
@@ -31,7 +31,7 @@ const CarCard = ({ car }: { car: Car }) => {
         {car.images && car.images.length > 0 ? (
           <img
             src={car.images[0]}
-            alt={`${car.brand} ${car.model}`}
+            alt={getCarImageAlt(car)}
             className="h-full w-full object-cover"
           />
         ) : (

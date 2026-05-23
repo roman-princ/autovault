@@ -66,7 +66,9 @@
     --secondary-foreground: 220 15% 95%;
 
     --muted: 220 20% 18%;
-    --muted-foreground: 220 10% 55%;
+    /* Lightened from 55% -> 68%: secondary text/spec labels and tags now clear
+       WCAG AA 4.5:1 against both --background (8%) and --card (12%). */
+    --muted-foreground: 220 14% 68%;
 
     --accent: 30 90% 55%;
     --accent-foreground: 0 0% 100%;

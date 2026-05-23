@@ -5,6 +5,13 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useDealershipCtx } from "@/contexts/DealershipContext";
 import CarCard from "@/components/CarCard";
 import Navbar from "@/components/Navbar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Search, SlidersHorizontal, Loader2 } from "lucide-react";
 
 const Index = () => {
@@ -70,28 +77,44 @@ const Index = () => {
           {/* Filters */}
           {showFilters && (
             <div className="mt-4 flex flex-wrap gap-3 animate-fade-in">
-              <select
-                value={brandFilter}
-                onChange={(e) => setBrandFilter(e.target.value)}
-                className="h-9 rounded-md border bg-background px-3 text-sm">
-                <option value="">All Brands</option>
-                {brands.map((b) => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={fuelFilter}
-                onChange={(e) => setFuelFilter(e.target.value)}
-                className="h-9 rounded-md border bg-background px-3 text-sm">
-                <option value="">All Fuel Types</option>
-                {fuelTypes.map((f) => (
-                  <option key={f} value={f}>
-                    {f}
-                  </option>
-                ))}
-              </select>
+              <Select
+                value={brandFilter || "all"}
+                onValueChange={(v) =>
+                  setBrandFilter(v === "all" ? "" : v)
+                }>
+                <SelectTrigger
+                  aria-label="Filter by brand"
+                  className="h-9 w-44 text-sm">
+                  <SelectValue placeholder="All Brands" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Brands</SelectItem>
+                  {brands.map((b) => (
+                    <SelectItem key={b} value={b}>
+                      {b}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={fuelFilter || "all"}
+                onValueChange={(v) =>
+                  setFuelFilter(v === "all" ? "" : v)
+                }>
+                <SelectTrigger
+                  aria-label="Filter by fuel type"
+                  className="h-9 w-44 text-sm">
+                  <SelectValue placeholder="All Fuel Types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Fuel Types</SelectItem>
+                  {fuelTypes.map((f) => (
+                    <SelectItem key={f} value={f}>
+                      {f}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <input
                 type="number"
                 placeholder="Max price (€)"
